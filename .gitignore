@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# lo storico prezzi INVECE va versionato: e' la memoria del sistema
+!data/prices.db

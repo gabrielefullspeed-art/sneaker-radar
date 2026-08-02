@@ -1,0 +1,47 @@
+name: Scansione affari
+
+on:
+  schedule:
+    # ogni 3 ore (orari UTC: in Italia sono +2 in estate, +1 in inverno)
+    - cron: "0 */3 * * *"
+  workflow_dispatch:        # permette di lanciarla a mano dal sito GitHub
+
+permissions:
+  contents: write           # serve per salvare lo storico prezzi nel repo
+
+concurrency:
+  group: sneaker-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Cerca affari
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_GRAILS: ${{ secrets.TELEGRAM_CHAT_ID_GRAILS }}
+          TELEGRAM_CHAT_ID_SUSPICIOUS: ${{ secrets.TELEGRAM_CHAT_ID_SUSPICIOUS }}
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+        run: python -m sneakers.run scan
+
+      - name: Salva lo storico prezzi
+        run: |
+          git config user.name  "sneaker-radar"
+          git config user.email "actions@github.com"
+          git add -f data/prices.db 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "storico prezzi $(date -u +%Y-%m-%d\ %H:%M)"
+          git push

@@ -1,0 +1,107 @@
+# ============================================================
+#  CONFIGURAZIONE GENERALE
+# ============================================================
+
+# --- Le tue taglie ---------------------------------------------------
+# In EU. Il sistema converte da solo in US uomo, US donna, UK e cm
+# a seconda di come ogni sito scrive le taglie.
+sizes_eu: [42, 42.5]
+
+# --- Budget ----------------------------------------------------------
+# Sopra questa cifra l'affare NON finisce nel canale principale.
+budget_eur: 1000
+
+# --- Regola di convenienza -------------------------------------------
+# Un annuncio diventa "affare" quando e' contemporaneamente:
+#   - nel percentile piu' basso degli ultimi N giorni per quella
+#     scarpa in quella taglia
+#   - almeno min_discount sotto il prezzo di riferimento
+# Cosi' la soglia si adatta da sola: severa sulle scarpe economiche,
+# piu' generosa su quelle costose dove anche il 15% sono molti euro.
+deal:
+  window_days: 30          # finestra dello storico prezzi
+  percentile: 10           # 10 = "nel 10% piu' basso del mese"
+  min_discount: 0.15       # 15% minimo sotto il riferimento
+  min_observations: 4      # sotto questa soglia usa il bootstrap
+
+  # --- Filtro anti-fake ---
+  # Sotto questa frazione del riferimento l'annuncio NON e' un affare:
+  # e' quasi sempre una replica, un prodotto sbagliato o una truffa.
+  # Finisce nel canale "sospetti" invece che nelle notifiche normali.
+  fake_floor: 0.50
+
+  # --- Canale grails ---
+  # Le scarpe con grail:true (o il cui prezzo di mercato supera
+  # stabilmente il budget) notificano solo sul minimo storico.
+  grail_window_days: 180
+
+# --- Anti-spam -------------------------------------------------------
+# Non ripete la stessa notifica (scarpa+taglia+sito) se non e'
+# passato almeno cooldown_hours O il prezzo non e' sceso ancora.
+alerts:
+  cooldown_hours: 48
+  redrop_pct: 0.05         # ri-notifica se scende di un altro 5%
+
+# --- Condizione ------------------------------------------------------
+# Accetti anche usato, ma non a qualsiasi condizione.
+condition:
+  accept_used: true
+  # parole che nel titolo/descrizione fanno scartare l'annuncio
+  reject_keywords:
+    - "replica"
+    - "rep "
+    - "unauthorized"
+    - "ua batch"
+    - "custom"
+    - "painted"
+    - "kids"
+    - "gs "
+    - "(gs)"
+    - "td "
+    - "ps "
+    - "box only"
+    - "solo scatola"
+    - "empty box"
+    - "laces only"
+    - "damaged"
+    - "for parts"
+    - "yellowed"
+    - "sole separation"
+
+# --- Sorgenti --------------------------------------------------------
+# Ogni negozio Shopify espone taglie e prezzi in JSON.
+# size_system dice come quel sito scrive le taglie:
+#   EU | UK | US_M | US_W | auto
+sources:
+  shopify:
+    enabled: true
+    request_delay: 1.5     # secondi tra una richiesta e l'altra (educato)
+    stores:
+      - {name: "Slam Jam",     url: "https://www.slamjam.com",        size_system: UK,  currency: EUR}
+      - {name: "Asphaltgold",  url: "https://www.asphaltgold.com/en", size_system: EU,  currency: EUR}
+      - {name: "Overkill",     url: "https://www.overkillshop.com",   size_system: EU,  currency: EUR}
+      - {name: "Foot District",url: "https://www.footdistrict.com",   size_system: EU,  currency: EUR}
+      # --- da verificare al primo giro dal runner GitHub ---
+      # (bloccati dall'IP di test locale, potrebbero funzionare in cloud)
+      - {name: "43einhalb",    url: "https://www.43einhalb.com",      size_system: EU,  currency: EUR, probe: true}
+      - {name: "Sivasdescalzo",url: "https://www.sivasdescalzo.com",  size_system: EU,  currency: EUR, probe: true}
+      - {name: "Oqium",        url: "https://www.oqium.com",          size_system: EU,  currency: EUR, probe: true}
+
+  ebay:
+    enabled: true
+    # mercati da interrogare (IT per primo: niente dogana, spedizioni brevi)
+    marketplaces: [EBAY_IT, EBAY_DE, EBAY_GB, EBAY_FR]
+    max_results: 50
+
+  kicksdb:
+    enabled: true
+    # riferimento StockX/GOAT. Piano free = 1000 richieste/mese,
+    # quindi si aggiorna UNA VOLTA AL GIORNO, non a ogni scansione.
+    refresh_hours: 20
+
+# --- Valute ----------------------------------------------------------
+# Tassi aggiornati automaticamente; questi sono solo il fallback.
+fx_fallback:
+  USD: 0.92
+  GBP: 1.18
+  EUR: 1.0

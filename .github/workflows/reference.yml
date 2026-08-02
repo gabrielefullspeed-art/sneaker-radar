@@ -1,0 +1,42 @@
+name: Aggiorna prezzi di mercato
+
+# Una volta al giorno: il piano gratuito KicksDB ha 1000 richieste/mese,
+# quindi il riferimento StockX/GOAT non va chiesto a ogni scansione.
+# Gira anche quando la watchlist e' ferma, cosi' GitHub non sospende
+# i workflow programmati per inattivita' del repository (limite 60 giorni).
+
+on:
+  schedule:
+    - cron: "30 5 * * *"     # 07:30 ora italiana (estate)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Aggiorna riferimenti StockX/GOAT
+        env:
+          KICKSDB_API_KEY: ${{ secrets.KICKSDB_API_KEY }}
+        run: python -m sneakers.run reference
+
+      - name: Salva
+        run: |
+          git config user.name  "sneaker-radar"
+          git config user.email "actions@github.com"
+          git add -f data/prices.db 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "riferimenti $(date -u +%Y-%m-%d)"
+          git push

@@ -1,0 +1,167 @@
+# ============================================================
+#  WATCHLIST — le scarpe da monitorare
+# ============================================================
+#  Campi:
+#    sku      codice modello Nike ufficiale
+#    name     nome mostrato nelle notifiche
+#    gender   men | women  -> decide la conversione taglie.
+#             ATTENZIONE: sulle uscite WMNS la tua EU 42 e' US W 10,
+#             non US M 8.5
+#    retail   listino originale in USD (informativo)
+#    terms    cosa digitare nella ricerca dei siti. CORTI: le ricerche
+#             fanno AND su tutte le parole, "Travis Scott Jordan 1 Low
+#             Olive" non trova nulla, "Travis Scott" trova tutto
+#    match    tutte queste devono comparire nel titolo per confermare
+#             che sia la scarpa giusta. "|" = alternative equivalenti
+#    exclude  se compare una di queste, l'annuncio viene scartato
+#    grail    true -> canale Telegram separato
+#    vintage  true -> avviso sulla condizione nella notifica
+# ============================================================
+
+- sku: IO7744-600
+  name: Air Jordan 3 Retro "Bin 23"
+  gender: men
+  retail: 355
+  release: 2026-06-13
+  terms: ["Bin 23", "Jordan 3 Bin"]
+  match: ["bin 23|bin23"]
+  exclude: ["gs", "td", "ps", "infant"]
+
+- sku: HQ2958-100
+  name: Who Decides War x Jordan Flight Court "Coconut Milk"
+  gender: women
+  retail: 120
+  release: 2025-07-11
+  terms: ["Flight Court", "Who Decides War"]
+  match: ["flight court", "coconut|who decides war|wdw"]
+  exclude: ["td", "ps", "crepe"]
+
+- sku: 313233-001
+  name: Nike SB Dunk Low "Pushead 1"
+  gender: men
+  retail: 100
+  release: 2005-01-01
+  vintage: true
+  terms: ["Pushead"]
+  match: ["pushead"]
+  exclude: ["pushead 2", "pushead ii"]
+
+- sku: 536356-002
+  name: Nike SB Dunk Low "Pushead 2"
+  gender: men
+  retail: 160
+  release: 2012-07-15
+  vintage: true
+  terms: ["Pushead"]
+  match: ["pushead 2|pushead ii"]
+  exclude: []
+
+- sku: FD8778-001
+  name: Supreme x Nike SB Dunk Low "Rammellzee"
+  gender: men
+  retail: 130
+  release: 2023-08-31
+  terms: ["Rammellzee", "Supreme Dunk"]
+  match: ["rammellzee|rammelzee"]
+  exclude: []
+
+- sku: DH3434-110
+  name: A Ma Maniere x Air Jordan 3 "Raised by Women"
+  gender: women
+  retail: 200
+  release: 2021-11-06
+  terms: ["A Ma Maniere", "Ma Maniere"]
+  match: ["a ma maniere|amm", "jordan 3|aj3"]
+  exclude: ["jordan 4", "jordan 5", "jordan 12", "while you were sleeping", "for the love"]
+
+- sku: CD4487-100
+  name: Travis Scott x Air Jordan 1 High OG "Mocha"
+  gender: men
+  retail: 175
+  release: 2019-05-11
+  grail: true
+  terms: ["Travis Scott", "Travis Scott Jordan 1"]
+  match: ["travis", "jordan 1|aj1", "mocha|cd4487"]
+  exclude: ["low", "reverse", "fragment", "olive"]
+
+- sku: DH7695-600
+  name: Parra x Nike SB Dunk Low "Abstract Art"
+  gender: men
+  retail: 110
+  release: 2021-07-24
+  terms: ["Parra"]
+  match: ["parra"]
+  exclude: ["2019", "friendship", "cyclone"]
+
+- sku: FD2562-400
+  name: April Skateboards x Nike SB Dunk Low
+  gender: men
+  retail: 120
+  release: 2023-11-27
+  terms: ["April Skateboards", "April"]
+  match: ["april", "dunk"]
+  exclude: []
+
+- sku: FZ8117-100
+  name: Travis Scott x Jordan Jumpman Jack TR "Sail"
+  gender: men
+  retail: 200
+  release: 2024-11-15
+  terms: ["Jumpman Jack"]
+  match: ["jumpman jack", "sail|muslin"]
+  exclude: ["black", "dark mocha", "university"]
+
+- sku: DM7866-200
+  name: Travis Scott x Air Jordan 1 Low OG "Medium Olive"
+  gender: men
+  retail: 150
+  release: 2024-09-28
+  terms: ["Travis Scott", "Travis Scott Jordan 1"]
+  match: ["travis", "jordan 1|aj1", "olive"]
+  exclude: ["high", "mocha", "td", "ps", "gs"]
+
+- sku: CV9388-100
+  name: Off-White x Air Jordan 4 "Sail" (WMNS)
+  gender: women
+  retail: 200
+  release: 2020-07-25
+  terms: ["Off-White", "Off White Jordan"]
+  match: ["off white|offwhite", "jordan 4|aj4", "sail"]
+  exclude: ["bred", "jordan 1", "jordan 5"]
+
+- sku: CT5053-001
+  name: Travis Scott x Nike SB Dunk Low
+  gender: men
+  retail: 150
+  release: 2020-02-29
+  grail: true
+  terms: ["Travis Scott", "Cactus Jack Dunk"]
+  match: ["travis|cactus jack", "dunk"]
+  exclude: ["jordan", "jumpman"]
+
+- sku: FD0860-001
+  name: Jarritos x Nike SB Dunk Low
+  gender: men
+  retail: 130
+  release: 2023-05-10
+  terms: ["Jarritos"]
+  match: ["jarritos"]
+  exclude: []
+
+- sku: FZ3129-200
+  name: Nike SB Dunk Low "Big Money Savings"
+  gender: men
+  retail: 125
+  release: 2024-04-17
+  terms: ["Big Money", "Big Money Savings"]
+  match: ["big money"]
+  exclude: []
+
+- sku: DZ3497-104
+  name: Jordan Air Ship PE SP "Every Game"
+  gender: men
+  retail: 140
+  release: 2023-05-10
+  terms: ["Air Ship", "Airship"]
+  match: ["air ship|airship", "every game|dz3497|diffused blue"]
+  exclude: ["td", "ps", "gs"]
