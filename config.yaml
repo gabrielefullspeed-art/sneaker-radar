@@ -77,26 +77,39 @@ sources:
     enabled: true
     request_delay: 1.5     # secondi tra una richiesta e l'altra (educato)
     stores:
+      # --- RESELL: qui vivono davvero le scarpe della watchlist ---
+      # Autenticano i prodotti, quindi il rischio fake e' molto piu' basso.
+      - {name: "Stadium Goods", url: "https://www.stadiumgoods.com", size_system: US, currency: USD}
+      - {name: "Kick Game",     url: "https://kickgame.co.uk",       size_system: UK, currency: GBP}
+
+      # --- NEGOZI: solo per uscite recenti e restock ---
+      # (una Pushead del 2005 non la avranno mai, ma la Bin 23 si')
       - {name: "Slam Jam",     url: "https://www.slamjam.com",        size_system: UK,  currency: EUR}
       - {name: "Asphaltgold",  url: "https://www.asphaltgold.com/en", size_system: EU,  currency: EUR}
       - {name: "Overkill",     url: "https://www.overkillshop.com",   size_system: EU,  currency: EUR}
       - {name: "Foot District",url: "https://www.footdistrict.com",   size_system: EU,  currency: EUR}
+
       # --- da verificare al primo giro dal runner GitHub ---
-      # (bloccati dall'IP di test locale, potrebbero funzionare in cloud)
+      # (bloccati dall'IP di casa, potrebbero funzionare dal cloud)
       - {name: "43einhalb",    url: "https://www.43einhalb.com",      size_system: EU,  currency: EUR, probe: true}
       - {name: "Sivasdescalzo",url: "https://www.sivasdescalzo.com",  size_system: EU,  currency: EUR, probe: true}
       - {name: "Oqium",        url: "https://www.oqium.com",          size_system: EU,  currency: EUR, probe: true}
 
+      # --- scartati: negozi indiani, prezzi in rupie, dogana proibitiva ---
+      # Kicks Machine, Crepdog Crew
+
   ebay:
-    enabled: true
-    # mercati da interrogare (IT per primo: niente dogana, spedizioni brevi)
+    # DISATTIVATO su richiesta: preferenza per piattaforme che autenticano.
+    # Per riattivarlo: enabled: true + le due chiavi in .env.
+    enabled: false
     marketplaces: [EBAY_IT, EBAY_DE, EBAY_GB, EBAY_FR]
     max_results: 50
 
   kicksdb:
+    # Senza eBay questa diventa la sorgente PIU' IMPORTANTE: e' l'unico
+    # modo di vedere i prezzi StockX e GOAT. Piano free 1000 richieste/mese,
+    # quindi si aggiorna una volta al giorno.
     enabled: true
-    # riferimento StockX/GOAT. Piano free = 1000 richieste/mese,
-    # quindi si aggiorna UNA VOLTA AL GIORNO, non a ogni scansione.
     refresh_hours: 20
 
 # --- Valute ----------------------------------------------------------

@@ -29,20 +29,27 @@ def normalize(text: str) -> str:
 
 
 def sku_present(text: str, sku: str) -> bool:
-    """Cerca lo SKU sia come 'DM7866-200' sia come 'DM7866200' o 'DM7866'."""
+    """
+    Cerca lo SKU completo, sia come 'DM7866-200' sia come 'DM7866200'.
+
+    Solo la corrispondenza intera: cercare frammenti come 'DM7866'
+    faceva scattare falsi positivi tra colorway della stessa serie.
+    """
     t = re.sub(r"[^a-z0-9]", "", str(text).lower())
     s = re.sub(r"[^a-z0-9]", "", str(sku).lower())
-    if s and s in t:
-        return True
-    stem = s.split("0")[0] if len(s) > 6 else s
-    return len(stem) >= 6 and stem in t
+    return bool(s) and s in t
 
 
 def matches(text: str, product: dict) -> bool:
-    """True se il testo descrive davvero la scarpa cercata."""
-    if sku_present(text, product["sku"]):
-        return True
+    """
+    True se il testo descrive davvero la scarpa cercata.
 
+    Lo SKU NON basta da solo: Kick Game pubblica la Travis Scott
+    "Shy Pink" con il codice DM7866-200, che appartiene alla
+    "Medium Olive". Fidarsi del solo codice avrebbe generato un finto
+    affare da 550 €. Quindi le regole sul nome comandano sempre, e
+    l'exclude ha sempre potere di veto.
+    """
     norm = " " + normalize(text) + " "
 
     for bad in product.get("exclude", []):
@@ -50,15 +57,15 @@ def matches(text: str, product: dict) -> bool:
             return False
 
     required = product.get("match")
-    if not required:
-        return False                      # senza regole non si indovina
+    if required:
+        for group in required:
+            alternatives = [normalize(a).strip() for a in str(group).split("|")]
+            if not any(a and a in norm for a in alternatives):
+                return False
+        return True
 
-    for group in required:
-        alternatives = [normalize(a).strip() for a in str(group).split("|")]
-        if not any(a and a in norm for a in alternatives):
-            return False
-
-    return True
+    # senza regole sul nome resta lo SKU come unica conferma
+    return sku_present(text, product["sku"])
 
 
 def search_terms(product: dict) -> list[str]:
