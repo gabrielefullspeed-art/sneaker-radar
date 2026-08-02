@@ -31,71 +31,95 @@ giorno.
 
 ---
 
-## Installazione (una volta sola, ~20 minuti)
+## Installazione
 
-### 1. Bot Telegram — 3 minuti
+Le chiavi si incollano **una sola volta** nel file `.env` (gia' creato, vuoto).
+Quel file resta solo sul tuo PC: e' escluso dal repository.
 
-1. Su Telegram cerca **@BotFather**, premi Start
-2. Scrivi `/newbot`, dai un nome (es. `Sneaker Radar`) e uno username che
-   finisca per `bot` (es. `gabriele_sneaker_bot`)
-3. BotFather risponde con un **token** tipo `7891234567:AAH...` — copialo
-4. Cerca il tuo bot appena creato, aprilo e premi **Start**
-5. Per trovare il tuo `chat_id`, cerca **@userinfobot** e premi Start:
-   ti risponde con un numero. Quello e' il `TELEGRAM_CHAT_ID`
+### Passo 1 — Bot Telegram (3 min, obbligatorio)
 
-*(Per i canali separati grails/suspicious: crea due gruppi Telegram,
-aggiungici il bot, e usa i loro id. Se non lo fai, tutto arriva nella
-chat principale.)*
+1. Su Telegram apri **@BotFather**, premi Start
+2. Scrivi `/newbot`, dai un nome (es. `Sneaker Radar`) e uno username
+   che finisca per `bot`
+3. Copia il **token** che ti risponde e incollalo in `.env`, riga
+   `TELEGRAM_BOT_TOKEN=`
+4. Apri il bot appena creato e scrivigli un messaggio qualsiasi
+5. Lancia:
 
-### 2. eBay — 5 minuti, gratis
+```bash
+python -m sneakers.run setup
+```
 
-1. Vai su **developer.ebay.com**, registrati (account eBay normale va bene)
-2. Crea un'applicazione di tipo **Production**
-3. Copia **App ID (Client ID)** e **Cert ID (Client Secret)**
+Il comando trova da solo il tuo `TELEGRAM_CHAT_ID` e te lo stampa:
+incollalo in `.env` e rilancia. Se tutto e' a posto ricevi un messaggio
+di conferma sul telefono.
 
-### 3. KicksDB — 2 minuti, gratis, senza carta
+### Passo 2 — eBay (5 min, gratis)
 
-1. Vai su **kicks.dev**, registrati
-2. Copia la **API key** dal pannello
-3. Piano free: 1.000 richieste/mese — bastano, il riferimento si aggiorna
-   una volta al giorno
+E' la sorgente piu' importante: le scarpe di questa watchlist sono tutte
+sold out nei negozi, eBay e' dove compaiono davvero.
 
-### 4. GitHub — 10 minuti
+1. **developer.ebay.com** -> registrati (va bene il tuo account eBay)
+2. Crea un'applicazione **Production**
+3. Copia **App ID** e **Cert ID** in `.env`
+
+### Passo 3 — KicksDB (2 min, gratis, facoltativo)
+
+1. **kicks.dev** -> registrati, nessuna carta richiesta
+2. Copia la API key in `.env`
+
+Senza questa chiave il sistema funziona lo stesso, ma impiega qualche
+settimana a costruirsi da solo i prezzi di riferimento.
+
+### Passo 4 — GitHub (10 min)
+
+Serve solo per far girare tutto a PC spento. Il repository locale e'
+**gia' pronto e committato**.
 
 1. Registrati su **github.com** (nessuna carta richiesta)
-2. Crea un repository **pubblico** chiamato `sneaker-radar`
+2. Crea un repository **pubblico** vuoto chiamato `sneaker-radar`,
+   senza README ne' .gitignore
 
    > Pubblico e' consigliato: sui repo pubblici i minuti di Actions non
    > vengono nemmeno conteggiati, quindi **non puoi essere addebitato**.
-   > Il token Telegram non finisce nel codice, sta nei Secrets cifrati.
-   > L'unica cosa visibile e' la lista delle scarpe.
+   > Le chiavi non stanno nel codice ma nei Secrets cifrati.
 
-3. Carica questa cartella nel repository
-4. Vai su **Settings -> Secrets and variables -> Actions -> New repository secret**
-   e aggiungi:
+3. Collega e carica:
 
-   | Nome | Valore |
+```bash
+git remote add origin https://github.com/TUO-UTENTE/sneaker-radar.git
+```
+
+```bash
+git push -u origin main
+```
+
+4. Su GitHub: **Settings -> Secrets and variables -> Actions ->
+   New repository secret**, e aggiungi gli stessi valori del tuo `.env`:
+
+   | Nome | Obbligatorio |
    |---|---|
-   | `TELEGRAM_BOT_TOKEN` | il token di BotFather |
-   | `TELEGRAM_CHAT_ID` | il tuo id numerico |
-   | `EBAY_CLIENT_ID` | App ID eBay |
-   | `EBAY_CLIENT_SECRET` | Cert ID eBay |
-   | `KICKSDB_API_KEY` | chiave KicksDB |
-   | `TELEGRAM_CHAT_ID_GRAILS` | *(opzionale)* gruppo separato |
-   | `TELEGRAM_CHAT_ID_SUSPICIOUS` | *(opzionale)* gruppo separato |
+   | `TELEGRAM_BOT_TOKEN` | si' |
+   | `TELEGRAM_CHAT_ID` | si' |
+   | `EBAY_CLIENT_ID` | consigliato |
+   | `EBAY_CLIENT_SECRET` | consigliato |
+   | `KICKSDB_API_KEY` | facoltativo |
+   | `TELEGRAM_CHAT_ID_GRAILS` | facoltativo |
+   | `TELEGRAM_CHAT_ID_SUSPICIOUS` | facoltativo |
 
-5. Vai sulla scheda **Actions**, apri *Scansione affari* e premi
-   **Run workflow** per il primo giro manuale
+5. Scheda **Actions** -> *Scansione affari* -> **Run workflow**
 
-Da quel momento gira da solo: **ogni 3 ore**.
+Da quel momento gira da solo, **ogni 3 ore**, anche a PC spento.
 
 ---
 
-## Uso da PC (facoltativo)
+## Comandi
 
 ```bash
-pip install -r requirements.txt
+python -m sneakers.run setup
 ```
+
+Collega il bot Telegram e trova il chat ID da solo.
 
 ```bash
 python -m sneakers.run doctor
@@ -104,16 +128,10 @@ python -m sneakers.run doctor
 Dice quali chiavi mancano e quali siti rispondono.
 
 ```bash
-python -m sneakers.run telegram
-```
-
-Manda un messaggio di prova.
-
-```bash
 python -m sneakers.run scan
 ```
 
-Esegue una scansione completa.
+Esegue una scansione completa e notifica gli affari.
 
 ---
 
