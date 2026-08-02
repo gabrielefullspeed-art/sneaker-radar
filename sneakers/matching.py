@@ -52,15 +52,21 @@ def matches(text: str, product: dict) -> bool:
     """
     norm = " " + normalize(text) + " "
 
+    # Confronto per parole intere, non per sottostringhe: exclude corti
+    # come "ps", "gs" o "td" scattavano dentro "drops", "leggings",
+    # "outdated" e facevano scartare annunci giusti.
+    def presente(termine: str) -> bool:
+        t = normalize(termine).strip()
+        return bool(t) and f" {t} " in norm
+
     for bad in product.get("exclude", []):
-        if normalize(bad).strip() in norm:
+        if presente(bad):
             return False
 
     required = product.get("match")
     if required:
         for group in required:
-            alternatives = [normalize(a).strip() for a in str(group).split("|")]
-            if not any(a and a in norm for a in alternatives):
+            if not any(presente(a) for a in str(group).split("|")):
                 return False
         return True
 
