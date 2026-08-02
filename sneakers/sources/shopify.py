@@ -35,13 +35,20 @@ class ShopifySource(Source):
         self.delay = cfg["sources"]["shopify"].get("request_delay", 1.5)
 
     # -- rete ---------------------------------------------------------
-    def _get(self, path: str, params: dict | None = None):
-        time.sleep(self.delay)          # niente martellate: una richiesta ogni 1.5 s
-        r = httpx.get(self.base + path, params=params, headers=BROWSER_HEADERS,
-                      timeout=20, follow_redirects=True)
-        if r.status_code != 200:
-            raise RuntimeError(f"HTTP {r.status_code} su {path}")
-        return r.json()
+    def _get(self, path: str, params: dict | None = None, tentativi: int = 3):
+        """
+        Una richiesta, con pausa fissa fra le chiamate e attesa crescente
+        se il sito risponde 429 (troppe richieste). Meglio lenti che bloccati.
+        """
+        for tentativo in range(tentativi):
+            time.sleep(self.delay * (1 + tentativo * 3))
+            r = httpx.get(self.base + path, params=params, headers=BROWSER_HEADERS,
+                          timeout=20, follow_redirects=True)
+            if r.status_code == 200:
+                return r.json()
+            if r.status_code != 429:
+                raise RuntimeError(f"HTTP {r.status_code} su {path}")
+        raise RuntimeError(f"HTTP 429 su {path} dopo {tentativi} tentativi")
 
     # -- ricerca ------------------------------------------------------
     def _suggest(self, query: str) -> list[dict]:
@@ -74,6 +81,15 @@ class ShopifySource(Source):
                 if not handle or handle in seen_handles:
                     continue
                 seen_handles.add(handle)
+
+                # Filtra PRIMA di scaricare il dettaglio: la risposta della
+                # ricerca contiene gia' titolo, tag e descrizione, e tanto
+                # basta per escludere il 90% dei risultati. Scaricare tutto
+                # faceva scattare il blocco 429 di Cloudflare.
+                anteprima = " ".join(str(hit.get(k, "")) for k in
+                                     ("title", "handle", "tags", "body"))
+                if not matches(anteprima, product):
+                    continue
 
                 try:
                     detail = self._variants(handle)

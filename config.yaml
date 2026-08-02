@@ -67,6 +67,25 @@ condition:
     - "for parts"
     - "yellowed"
     - "sole separation"
+    # non sono scarpe: le collaborazioni famose hanno sempre
+    # magliette, cappelli e giocattoli con lo stesso nome
+    - "tee"
+    - "t-shirt"
+    - "shirt"
+    - "hoodie"
+    - "crewneck"
+    - "jacket"
+    - "hat"
+    - "cap"
+    - "beanie"
+    - "shorts"
+    - "socks"
+    - "jersey"
+    - "bearbrick"
+    - "figure"
+    - "poster"
+    - "keychain"
+    - "backpack"
 
 # --- Sorgenti --------------------------------------------------------
 # Ogni negozio Shopify espone taglie e prezzi in JSON.

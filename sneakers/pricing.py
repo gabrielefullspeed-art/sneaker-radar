@@ -157,9 +157,18 @@ def should_notify(con, deal: Deal, cfg: dict) -> bool:
 
 
 def rejected_by_keywords(text: str, keywords: list[str]) -> str | None:
-    """Scarta repliche, box vuote, taglie bambino. Restituisce la parola trovata."""
-    low = f" {text.lower()} "
+    """
+    Scarta repliche, box vuote, magliette e taglie bambino.
+    Restituisce la parola incriminata, o None se l'annuncio va bene.
+
+    Confronto per parole intere: cercare "tee" come sottostringa
+    scarterebbe anche "steel" e "canteen".
+    """
+    from .matching import normalize
+
+    norm = " " + normalize(text) + " "
     for kw in keywords:
-        if kw.lower() in low:
+        k = normalize(kw).strip()
+        if k and f" {k} " in norm:
             return kw
     return None
