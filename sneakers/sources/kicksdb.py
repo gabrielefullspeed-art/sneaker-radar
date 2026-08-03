@@ -14,6 +14,7 @@ lento ma funziona.
 """
 
 import os
+import re
 import json
 import httpx
 
@@ -73,38 +74,84 @@ class KicksDBReference(Source):
 
     def _parse(self, data: dict, product: dict, sizes_eu: list[float]) -> dict[float, float]:
         """
-        Il formato esatto delle varianti puo' cambiare fra le versioni
-        dell'API, quindi la lettura e' volutamente tollerante: si cerca
-        una taglia e un prezzo comunque siano nominati i campi.
-        """
-        from ..sizes import parse_size
+        Estrae il lowest ask per ognuna delle taglie che interessano.
 
-        products = data.get("data") or data.get("products") or []
+        Struttura reale della risposta:
+            data[0].sku                       codice modello, da verificare
+            data[0].variants[].lowest_ask     prezzo, 0 se nessuno vende
+            data[0].variants[].currency       valuta (USD sul piano free)
+            data[0].variants[].sizes[]        stessa taglia in tutti i
+                                              sistemi, incluso {"type":"eu"}
+
+        Le taglie EU arrivano gia' convertite dall'API, quindi qui non
+        si indovina nulla: si legge l'etichetta "EU 42" cosi' com'e'.
+        """
+        products = data.get("data") or []
         if isinstance(products, dict):
             products = [products]
         if not products:
             return {}
 
-        gender = product.get("gender", "men")
+        # niente sorprese: deve essere davvero la scarpa richiesta
+        p = products[0]
+        atteso = re.sub(r"[^a-z0-9]", "", product["sku"].lower())
+        trovato = re.sub(r"[^a-z0-9]", "", str(p.get("sku", "")).lower())
+        if atteso and trovato and atteso != trovato:
+            self.log_error(f"{product['sku']}: l'API ha risposto con {p.get('sku')}, ignorato")
+            return {}
+
         out: dict[float, float] = {}
-
-        variants = products[0].get("variants") or products[0].get("sizes") or []
-        for v in variants:
-            raw_size = v.get("size") or v.get("size_us") or v.get("title")
-            price = (v.get("lowest_ask") or v.get("lowestAsk")
-                     or v.get("price") or v.get("last_sale") or v.get("lastSale"))
-            if raw_size is None or not price:
+        for v in p.get("variants", []):
+            ask = v.get("lowest_ask")
+            if not ask:                       # 0 = nessuno la vende in quella taglia
                 continue
-            size_eu = parse_size(str(raw_size), "auto", gender)
-            if size_eu in sizes_eu:
-                out[size_eu] = self.fx(float(price), products[0].get("currency", "USD"))
 
-        # fallback: prezzo unico non diviso per taglia
-        if not out:
-            p = (products[0].get("min_price") or products[0].get("avg_price")
-                 or products[0].get("retail_price"))
-            if p:
-                cur = products[0].get("currency", "USD")
-                out = {s: self.fx(float(p), cur) for s in sizes_eu}
+            etichetta_eu = next((s.get("size") for s in v.get("sizes", [])
+                                 if s.get("type") == "eu"), None)
+            if not etichetta_eu:
+                continue
+
+            m = re.search(r"(\d+(?:\.\d+)?)", str(etichetta_eu))
+            if not m:
+                continue
+            size_eu = float(m.group(1))
+            if size_eu in sizes_eu:
+                out[size_eu] = self.fx(float(ask), v.get("currency", "USD"))
 
         return out
+
+    def market_snapshot(self, product: dict, sizes_eu: list[float]) -> dict:
+        """
+        Come reference_prices, ma restituisce anche il contorno utile a
+        capire quanto fidarsi del prezzo: quante offerte ci sono e
+        quante vendite reali negli ultimi due mesi.
+        """
+        if not self.available:
+            return {}
+        try:
+            data = self._fetch(product["sku"])
+        except Exception as e:
+            self.log_error(f"{product['sku']}: {e}")
+            return {}
+
+        products = data.get("data") or []
+        if not products:
+            return {}
+        p = products[0]
+
+        righe = {}
+        for v in p.get("variants", []):
+            etichetta_eu = next((s.get("size") for s in v.get("sizes", [])
+                                 if s.get("type") == "eu"), "")
+            m = re.search(r"(\d+(?:\.\d+)?)", str(etichetta_eu))
+            if not m or float(m.group(1)) not in sizes_eu:
+                continue
+            righe[float(m.group(1))] = {
+                "lowest_ask": v.get("lowest_ask") or 0,
+                "currency": v.get("currency", "USD"),
+                "eur": self.fx(float(v.get("lowest_ask") or 0), v.get("currency", "USD")),
+                "offerte": v.get("total_asks") or 0,
+                "vendite_60gg": v.get("sales_count_60_days") or 0,
+            }
+        return {"titolo": p.get("title"), "sku": p.get("sku"),
+                "min": p.get("min_price"), "media": p.get("avg_price"), "taglie": righe}

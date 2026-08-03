@@ -37,7 +37,7 @@
   exclude: ["td", "ps", "crepe"]
 
 - sku: 313233-001
-  name: Nike SB Dunk Low "Pushead 1"
+  name: Nike SB Dunk Low "Pushead 1"  # 0 vendite in 60gg: riferimento poco affidabile
   gender: men
   retail: 100
   release: 2005-01-01
@@ -79,7 +79,6 @@
   gender: men
   retail: 175
   release: 2019-05-11
-  grail: true
   terms: ["Travis Scott", "Travis Scott Jordan 1"]
   match: ["travis", "jordan 1|aj1", "mocha|cd4487"]
   exclude: ["low", "reverse", "fragment", "olive"]
@@ -134,7 +133,6 @@
   gender: men
   retail: 150
   release: 2020-02-29
-  grail: true
   terms: ["Travis Scott", "Cactus Jack Dunk"]
   match: ["travis|cactus jack", "dunk"]
   exclude: ["jordan", "jumpman"]
