@@ -16,6 +16,13 @@
 #    exclude  se compare una di queste, l'annuncio viene scartato
 #    grail    true -> canale Telegram separato
 #    vintage  true -> avviso sulla condizione nella notifica
+#
+#  --- limiti manuali, facoltativi e per singola scarpa ---
+#    reference  prezzo di base deciso da te, invece di quello StockX
+#    max_price  notifica SOLO a questo prezzo o meno. Dove lo metti,
+#               disattiva percentile e sconto minimo: comandi tu.
+#    Le scarpe senza questi due campi continuano con la regola
+#    automatica, non cambia nulla per loro.
 # ============================================================
 
 - sku: IO7744-600
@@ -154,6 +161,17 @@
   terms: ["Big Money", "Big Money Savings"]
   match: ["big money"]
   exclude: []
+
+- sku: DZ5485-201
+  name: Air Jordan 1 High OG "Love Letter"
+  gender: men
+  retail: 185
+  release: 2026-08-01
+  reference: 170          # prezzo di base fissato da te, non da StockX
+  max_price: 130          # notifica solo a 130 EUR o meno
+  terms: ["Love Letter", "Jordan 1 Love"]
+  match: ["love letter", "jordan 1|aj1"]
+  exclude: ["gs", "td", "ps", "low", "mid"]
 
 - sku: DZ3497-104
   name: Jordan Air Ship PE SP "Every Game"

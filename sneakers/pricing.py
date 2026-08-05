@@ -94,6 +94,26 @@ def evaluate(listing, product, reference: float, history: list[float],
                    "Chiedi foto della scatola, dell'etichetta interna e della suola."],
         )
 
+    # --- soglia manuale per singola scarpa -------------------------
+    # Se nella watchlist hai scritto max_price, comandi tu: niente
+    # percentile, niente sconto minimo, notifica solo a quel prezzo
+    # o meno. Vale unicamente per le scarpe dove l'hai indicato.
+    soglia = product.get("max_price")
+    if soglia is not None:
+        if price > float(soglia):
+            return None
+        notes.append(f"Sotto la tua soglia di {float(soglia):.0f} € per questa scarpa.")
+        if listing.condition == "used":
+            notes.append("Annuncio dichiarato come usato — chiedi foto reali.")
+        if product.get("vintage"):
+            notes.append("Paio vintage: controlla intersuola e collante prima di comprare.")
+        return Deal(
+            product_name=product["name"], sku=product["sku"], size_eu=listing.size_eu,
+            source=listing.source, price=price, reference=reference,
+            discount=discount, url=listing.url, condition=listing.condition,
+            channel="main", notes=notes, listing_title=listing.title,
+        )
+
     is_grail = bool(product.get("grail") or reference > budget)
 
     # --- grail sopra budget: regola dedicata -----------------------

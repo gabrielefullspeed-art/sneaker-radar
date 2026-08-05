@@ -175,10 +175,16 @@ def cmd_scan(cfg, watch):
 
                 history = db.prices_in_window(con, lst.sku, lst.size_eu,
                                               cfg["deal"]["window_days"])
-                ext = db.get_reference(con, lst.sku, lst.size_eu)
-                ref = pricing.compute_reference(
-                    history, ext[0] if ext else None, cfg["deal"]["min_observations"]
-                )
+
+                # Se nella watchlist hai fissato tu il prezzo di base,
+                # quello vince su StockX e sullo storico.
+                if product.get("reference"):
+                    ref = (float(product["reference"]), "manuale")
+                else:
+                    ext = db.get_reference(con, lst.sku, lst.size_eu)
+                    ref = pricing.compute_reference(
+                        history, ext[0] if ext else None, cfg["deal"]["min_observations"]
+                    )
                 if ref is None:
                     continue                      # primo avvistamento: solo registra
 
