@@ -62,8 +62,8 @@
   retail: 130
   release: 2023-08-31
   terms: ["Rammellzee", "Supreme Dunk"]
-  match: ["rammellzee|rammelzee"]
-  exclude: []
+  match: ["rammellzee|rammelzee", "low"]
+  exclude: ["high"]
 
 - sku: DH3434-110
   name: A Ma Maniere x Air Jordan 3 "Raised by Women"
@@ -72,7 +72,7 @@
   release: 2021-11-06
   terms: ["A Ma Maniere", "Ma Maniere"]
   match: ["a ma maniere|amm", "jordan 3|aj3"]
-  exclude: ["jordan 4", "jordan 5", "jordan 12", "while you were sleeping", "for the love"]
+  exclude: ["jordan 4", "jordan 5", "jordan 12", "while you were sleeping", "for the love", "black"]
 
 - sku: CD4487-100
   name: Travis Scott x Air Jordan 1 High OG "Mocha"
@@ -161,5 +161,5 @@
   retail: 140
   release: 2023-05-10
   terms: ["Air Ship", "Airship"]
-  match: ["air ship|airship", "every game|dz3497|diffused blue"]
+  match: ["air ship|airship", "every game|diffused blue"]
   exclude: ["td", "ps", "gs"]

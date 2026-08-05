@@ -40,6 +40,35 @@ def sku_present(text: str, sku: str) -> bool:
     return bool(s) and s in t
 
 
+_CODICE = re.compile(r"\b([A-Z]{2}\d{4}|\d{6})[\s-]?(\d{3})\b")
+
+
+def codici_modello(text: str) -> set[str]:
+    """Tutti i codici modello presenti nel testo, normalizzati."""
+    return {a + b for a, b in _CODICE.findall(str(text).upper())}
+
+
+def codice_contrastante(text: str, sku: str) -> str | None:
+    """
+    Il controllo piu' affidabile che esista, perche' non dipende dai nomi.
+
+    I negozi scrivono il codice modello nel titolo: "FD8778 001".
+    Se il testo espone un codice e NON e' il nostro, e' un'altra scarpa,
+    per quanto il nome si assomigli. E' cosi' che si distingue la
+    Rammellzee Low (FD8778) dalla High (FD8779), o la Air Ship
+    "Every Game" (DZ3497-104) dalla "Tech Grey" (DZ3497-100).
+
+    Restituisce il codice estraneo trovato, o None se va tutto bene.
+    """
+    trovati = codici_modello(text)
+    if not trovati:
+        return None                       # nessun codice: decidono i nomi
+    nostro = re.sub(r"[^A-Z0-9]", "", str(sku).upper())
+    if nostro in trovati:
+        return None
+    return sorted(trovati)[0]
+
+
 def matches(text: str, product: dict) -> bool:
     """
     True se il testo descrive davvero la scarpa cercata.
@@ -50,6 +79,11 @@ def matches(text: str, product: dict) -> bool:
     affare da 550 €. Quindi le regole sul nome comandano sempre, e
     l'exclude ha sempre potere di veto.
     """
+    # Prima di tutto: se l'annuncio dichiara un codice modello diverso
+    # dal nostro, e' un'altra scarpa. Nessun nome puo' smentirlo.
+    if codice_contrastante(text, product["sku"]):
+        return False
+
     norm = " " + normalize(text) + " "
 
     # Confronto per parole intere, non per sottostringhe: exclude corti
