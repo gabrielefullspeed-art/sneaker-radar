@@ -59,11 +59,21 @@ def deal_message(deal) -> str:
 
     lines = [
         f"{_EMOJI.get(deal.channel, '🔥')} <b>{e(deal.product_name)}</b>",
+    ]
+
+    # Il titolo con cui il negozio la vende. Va mostrato sempre: e' il
+    # modo piu' rapido per accorgersi se il sistema ha preso la scarpa
+    # sbagliata, senza dover aprire il link.
+    if deal.listing_title:
+        lines.append(f"<i>in vendita come: {e(deal.listing_title)}</i>")
+
+    lines += [
         "",
         f"💶 <b>{deal.price:.0f} €</b>   <s>{deal.reference:.0f} €</s>   "
         f"<b>-{pct}%</b>  (risparmi {saving:.0f} €)",
         f"📏 Taglia <b>EU {deal.size_eu:g}</b>",
         f"🏪 {e(deal.source)}",
+        f"🔖 <code>{e(deal.sku)}</code>",
     ]
 
     if deal.condition and deal.condition != "unknown":

@@ -18,7 +18,7 @@ from statistics import median
 
 @dataclass
 class Deal:
-    product_name: str
+    product_name: str        # come la chiami tu nella watchlist
     sku: str
     size_eu: float
     source: str
@@ -29,6 +29,8 @@ class Deal:
     condition: str = "unknown"
     channel: str = "main"
     notes: list[str] = field(default_factory=list)
+    listing_title: str = ""  # come la chiama il negozio: serve a te per
+                             # accorgerti al volo se ha sbagliato scarpa
 
 
 def percentile(values: list[float], p: float) -> float | None:
@@ -87,7 +89,7 @@ def evaluate(listing, product, reference: float, history: list[float],
             product_name=product["name"], sku=product["sku"], size_eu=listing.size_eu,
             source=listing.source, price=price, reference=reference,
             discount=discount, url=listing.url, condition=listing.condition,
-            channel="suspicious",
+            channel="suspicious", listing_title=listing.title,
             notes=["Prezzo troppo basso per essere autentico — verifica con estrema attenzione.",
                    "Chiedi foto della scatola, dell'etichetta interna e della suola."],
         )
@@ -132,7 +134,7 @@ def evaluate(listing, product, reference: float, history: list[float],
         product_name=product["name"], sku=product["sku"], size_eu=listing.size_eu,
         source=listing.source, price=price, reference=reference,
         discount=discount, url=listing.url, condition=listing.condition,
-        channel=channel, notes=notes,
+        channel=channel, notes=notes, listing_title=listing.title,
     )
 
 
