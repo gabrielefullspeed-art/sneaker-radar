@@ -124,11 +124,14 @@ def cmd_reference(cfg, watch):
             age = db.reference_age_hours(con, product["sku"], size, "kicksdb")
             if age is not None and age < refresh_h:
                 continue                       # gia' fresco, risparmia una richiesta
-            prices = kdb.reference_prices(product, cfg["sizes_eu"])
-            for s, p in prices.items():
-                db.set_reference(con, product["sku"], s, p, "kicksdb")
-                updated += 1
-            break                              # una richiesta copre tutte le taglie
+
+            # una richiesta per piattaforma copre tutte le taglie
+            for etichetta, prezzi in (("kicksdb", kdb.reference_prices(product, cfg["sizes_eu"])),
+                                      ("goat", kdb.goat_prices(product, cfg["sizes_eu"]))):
+                for s, p in prezzi.items():
+                    db.set_reference(con, product["sku"], s, p, etichetta)
+                    updated += 1
+            break
 
     con.commit()
     print(f"Riferimenti aggiornati: {updated}")

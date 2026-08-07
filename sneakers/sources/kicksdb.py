@@ -58,9 +58,9 @@ class KicksDBReference(Source):
 
         return self._parse(data, product, sizes_eu)
 
-    def _fetch(self, sku: str) -> dict:
+    def _fetch(self, sku: str, platform: str = "stockx") -> dict:
         r = httpx.get(
-            f"{BASE}/v3/stockx/products",
+            f"{BASE}/v3/{platform}/products",
             headers={"Authorization": self.api_key},
             params={"query": sku, "limit": 1, "display[variants]": "true"},
             timeout=25,
@@ -118,6 +118,50 @@ class KicksDBReference(Source):
             if size_eu in sizes_eu:
                 out[size_eu] = self.fx(float(ask), v.get("currency", "USD"))
 
+        return out
+
+    def goat_prices(self, product: dict, sizes_eu: list[float]) -> dict[float, float]:
+        """
+        Stessa cosa ma da GOAT.
+
+        GOAT espone le varianti in modo diverso da StockX: niente elenco
+        di taglie convertite, solo il numero US secco ("8.5") e il prezzo.
+        La conversione la facciamo noi, tenendo conto che sulle uscite
+        WMNS la stessa EU 42 corrisponde a un numero US diverso.
+        """
+        if not self.available:
+            return {}
+        try:
+            data = self._fetch(product["sku"], platform="goat")
+        except Exception as e:
+            self.log_error(f"GOAT {product['sku']}: {e}")
+            return {}
+
+        products = data.get("data") or []
+        if not products:
+            return {}
+        p = products[0]
+
+        atteso = re.sub(r"[^a-z0-9]", "", product["sku"].lower())
+        trovato = re.sub(r"[^a-z0-9]", "", str(p.get("sku", "")).lower())
+        if atteso and trovato and atteso != trovato:
+            self.log_error(f"GOAT {product['sku']}: ha risposto {p.get('sku')}, ignorato")
+            return {}
+
+        from ..sizes import to_eu
+
+        gender = product.get("gender", "men")
+        out: dict[float, float] = {}
+        for v in p.get("variants", []):
+            if not v.get("available") or not v.get("lowest_ask"):
+                continue
+            try:
+                size_us = float(v["size"])
+            except (TypeError, ValueError):
+                continue
+            size_eu = to_eu(size_us, "US", gender)
+            if size_eu in sizes_eu:
+                out[size_eu] = self.fx(float(v["lowest_ask"]), v.get("currency", "USD"))
         return out
 
     def market_snapshot(self, product: dict, sizes_eu: list[float]) -> dict:

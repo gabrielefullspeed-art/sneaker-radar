@@ -96,10 +96,28 @@ def set_reference(con, sku: str, size_eu: float, price_eur: float, source: str):
 
 
 def get_reference(con, sku: str, size_eu: float) -> tuple[float, str] | None:
-    """Riferimento piu' affidabile disponibile: prima KicksDB, poi lo storico."""
-    for src in ("kicksdb", "history", "bootstrap"):
+    """
+    Quanto vale davvero quella scarpa in quella taglia.
+
+    StockX e GOAT sono due mercati distinti e i prezzi differiscono:
+    si prende il PIU' BASSO dei due, perche' e' la cifra a cui potresti
+    davvero comprarla oggi. Lo storico interno interviene solo se
+    nessuno dei due risponde.
+    """
+    esterni = []
+    for src in ("kicksdb", "goat"):
         row = con.execute(
-            "SELECT price_eur, ts FROM reference WHERE sku=? AND size_eu=? AND source=?",
+            "SELECT price_eur FROM reference WHERE sku=? AND size_eu=? AND source=?",
+            (sku, float(size_eu), src),
+        ).fetchone()
+        if row and row["price_eur"] > 0:
+            esterni.append((row["price_eur"], src))
+    if esterni:
+        return min(esterni)
+
+    for src in ("history", "bootstrap"):
+        row = con.execute(
+            "SELECT price_eur FROM reference WHERE sku=? AND size_eu=? AND source=?",
             (sku, float(size_eu), src),
         ).fetchone()
         if row:

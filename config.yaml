@@ -100,6 +100,8 @@ sources:
       # Autenticano i prodotti, quindi il rischio fake e' molto piu' basso.
       - {name: "Stadium Goods", url: "https://www.stadiumgoods.com", size_system: US, currency: USD}
       - {name: "Kick Game",     url: "https://kickgame.co.uk",       size_system: UK, currency: GBP}
+      # italiano, taglie gia' in EU e SKU Nike veri dentro le varianti
+      - {name: "Resellzone",    url: "https://www.resellzone.it",    size_system: EU, currency: EUR}
 
       # --- NEGOZI: solo per uscite recenti e restock ---
       # (una Pushead del 2005 non la avranno mai, ma la Bin 23 si')
@@ -107,6 +109,8 @@ sources:
       - {name: "Asphaltgold",  url: "https://www.asphaltgold.com/en", size_system: EU,  currency: EUR}
       - {name: "Overkill",     url: "https://www.overkillshop.com",   size_system: EU,  currency: EUR}
       - {name: "Foot District",url: "https://www.footdistrict.com",   size_system: EU,  currency: EUR}
+      # svedese; la pagina prodotto dichiara sizeType "us", non UK
+      - {name: "SNS",          url: "https://www.sneakersnstuff.com", size_system: US,  currency: EUR}
 
       # --- DISATTIVATI: rispondono 403 sia da casa sia dal cloud ---
       # Hanno un firewall che blocca tutto cio' che non e' un browser
@@ -131,7 +135,10 @@ sources:
     # modo di vedere i prezzi StockX e GOAT. Piano free 1000 richieste/mese,
     # quindi si aggiorna una volta al giorno.
     enabled: true
-    refresh_hours: 20
+    # Ora si interrogano DUE piattaforme (StockX + GOAT), quindi ogni
+    # scarpa costa 2 richieste. Con 17 scarpe e il piano free da 1000
+    # al mese, aggiornare ogni 36 ore tiene il conto sotto le 700.
+    refresh_hours: 36
 
 # --- Valute ----------------------------------------------------------
 # Tassi aggiornati automaticamente; questi sono solo il fallback.
