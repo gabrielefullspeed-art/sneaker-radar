@@ -112,17 +112,25 @@ class WethenewSource(Source):
         Restringe 7.700 slug a una manciata, confrontando le parole
         chiave della scarpa con il testo dell'indirizzo.
         """
-        parole = []
-        for t in product.get("terms", []):
-            parole += [w for w in normalize(t).split() if len(w) > 2]
-        parole = list(dict.fromkeys(parole))
-        if not parole:
+        # Ogni termine va valutato PER CONTO SUO: unire le parole di
+        # "Travis Scott" e "Cactus Jack Dunk" e pretenderle tutte
+        # insieme non fa trovare niente. Basta che UN termine torni.
+        gruppi = [[w for w in normalize(t).split() if len(w) > 2]
+                  for t in product.get("terms", [])]
+        gruppi = [g for g in gruppi if g]
+        if not gruppi:
             return []
 
+        # Il nome nello slug contiene quasi sempre il colorway, quindi
+        # le regole match/exclude si applicano gia' qui: "Travis Scott"
+        # da solo pesca 69 prodotti, e troncare ai primi quattro faceva
+        # perdere proprio quello giusto.
         risultati = []
         for slug in slugs:
             piatto = slug.replace("-", " ")
-            if all(w in piatto for w in parole):
+            if not any(all(w in piatto for w in g) for g in gruppi):
+                continue
+            if matches(piatto, product):
                 risultati.append(slug)
         return risultati
 

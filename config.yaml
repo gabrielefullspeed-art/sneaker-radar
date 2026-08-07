@@ -130,6 +130,13 @@ sources:
     enabled: true
     request_delay: 1.2
 
+  laced:
+    # Britannico. Ha un'API vera che restituisce taglie gia' in EU e
+    # prezzi gia' in euro per consegna in Italia: nessuna conversione
+    # da indovinare, nessun cambio valuta.
+    enabled: true
+    request_delay: 1.2
+
   ebay:
     # DISATTIVATO su richiesta: preferenza per piattaforme che autenticano.
     # Per riattivarlo: enabled: true + le due chiavi in .env.

@@ -3,6 +3,7 @@ from .shopify import ShopifySource
 from .ebay import EbaySource
 from .kicksdb import KicksDBReference
 from .wethenew import WethenewSource
+from .laced import LacedSource
 
 
 def build_sources(cfg, fx) -> list[Source]:
@@ -18,6 +19,10 @@ def build_sources(cfg, fx) -> list[Source]:
     if wtn.get("enabled"):
         sources.append(WethenewSource(cfg, fx, wtn))
 
+    lc = cfg["sources"].get("laced", {})
+    if lc.get("enabled"):
+        sources.append(LacedSource(cfg, fx, lc))
+
     eb = cfg["sources"].get("ebay", {})
     if eb.get("enabled"):
         s = EbaySource(cfg, fx)
@@ -30,4 +35,4 @@ def build_sources(cfg, fx) -> list[Source]:
 
 
 __all__ = ["Source", "Listing", "ShopifySource", "EbaySource",
-           "KicksDBReference", "WethenewSource", "build_sources"]
+           "KicksDBReference", "WethenewSource", "LacedSource", "build_sources"]
