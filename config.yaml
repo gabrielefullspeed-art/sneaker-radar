@@ -99,18 +99,27 @@ sources:
       # --- RESELL: qui vivono davvero le scarpe della watchlist ---
       # Autenticano i prodotti, quindi il rischio fake e' molto piu' basso.
       - {name: "Stadium Goods", url: "https://www.stadiumgoods.com", size_system: US, currency: USD}
-      - {name: "Kick Game",     url: "https://kickgame.co.uk",       size_system: UK, currency: GBP}
       # italiano, taglie gia' in EU e SKU Nike veri dentro le varianti
       - {name: "Resellzone",    url: "https://www.resellzone.it",    size_system: EU, currency: EUR}
+
+      # --- RIMOSSO: Kick Game ---
+      # Quasi nulla della watchlist, e dati sporchi: pubblica la Travis
+      # Scott "Shy Pink" con lo SKU DM7866-200, che appartiene alla
+      # "Medium Olive". E' l'errore che aveva prodotto un finto affare
+      # da 550 euro.
+      # - {name: "Kick Game",   url: "https://kickgame.co.uk",       size_system: UK, currency: GBP}
 
       # --- NEGOZI: solo per uscite recenti e restock ---
       # (una Pushead del 2005 non la avranno mai, ma la Bin 23 si')
       - {name: "Slam Jam",     url: "https://www.slamjam.com",        size_system: UK,  currency: EUR}
       - {name: "Asphaltgold",  url: "https://www.asphaltgold.com/en", size_system: EU,  currency: EUR}
-      - {name: "Overkill",     url: "https://www.overkillshop.com",   size_system: EU,  currency: EUR}
       - {name: "Foot District",url: "https://www.footdistrict.com",   size_system: EU,  currency: EUR}
       # svedese; la pagina prodotto dichiara sizeType "us", non UK
       - {name: "SNS",          url: "https://www.sneakersnstuff.com", size_system: US,  currency: EUR}
+
+      # --- RIMOSSO: Overkill ---
+      # Zero risultati sulla watchlist in tre giorni di scansioni.
+      # - {name: "Overkill",   url: "https://www.overkillshop.com",  size_system: EU, currency: EUR}
 
       # --- DISATTIVATI: rispondono 403 sia da casa sia dal cloud ---
       # Hanno un firewall che blocca tutto cio' che non e' un browser
