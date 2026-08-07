@@ -48,17 +48,24 @@ def percentile(values: list[float], p: float) -> float | None:
 def compute_reference(history: list[float], external: float | None,
                       min_obs: int) -> tuple[float, str] | None:
     """
-    Prezzo di riferimento per una scarpa/taglia.
+    Prezzo di riferimento per una scarpa/taglia: quanto vale davvero.
 
-    Con abbastanza storico usa la MEDIANA (non la media: un annuncio
-    fake a 60 € distruggerebbe una media, non una mediana).
-    Finche' lo storico e' scarso usa il dato esterno StockX/GOAT,
-    cosi' il sistema funziona dal primo giorno invece che tra un mese.
+    Il dato StockX/GOAT viene PRIMA dello storico, ed e' una lezione
+    imparata sul campo. Prima lo storico aveva la precedenza dopo
+    quattro rilevazioni, ma quello storico e' fatto dei prezzi CHIESTI
+    dai negozi, non di quelli pagati: Stadium Goods chiede il doppio
+    del mercato, e il sistema finiva per considerare normale il doppio
+    del mercato e segnalare come affare una Off-White a 1.125 € che
+    su StockX ne vale 750.
+
+    Il lowest ask di StockX e' un prezzo di mercato vero. Le vetrine
+    dei negozi sono offerte, e un'offerta non definisce il valore.
+    Lo storico serve solo quando un riferimento esterno non c'e'.
     """
-    if len(history) >= min_obs:
-        return median(history), "history"
     if external:
         return external, "kicksdb"
+    if len(history) >= min_obs:
+        return median(history), "history"
     if history:
         return median(history), "bootstrap"
     return None
@@ -121,8 +128,12 @@ def evaluate(listing, product, reference: float, history: list[float],
     # non scendera' mai cosi' tanto, ma sapere che ha toccato il
     # minimo semestrale e' comunque l'informazione che serve.
     if is_grail and price > budget:
-        floor = min(history_long) if history_long else None
-        if floor is None or price > floor * 1.02:
+        # Serve uno storico vero prima di poter dire "e' il minimo":
+        # con due rilevazioni qualunque prezzo e' un minimo.
+        if not history_long or len(history_long) < d["min_observations"] * 2:
+            return None
+        floor = min(history_long)
+        if price >= floor:                # deve battere il minimo, non pareggiarlo
             return None
         channel = "grails"
         notes.append(f"Minimo degli ultimi {d['grail_window_days']} giorni.")

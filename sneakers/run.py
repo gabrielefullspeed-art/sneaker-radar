@@ -167,12 +167,10 @@ def cmd_scan(cfg, watch):
                 if bad:
                     continue
 
-                db.record_observation(
-                    con, sku=lst.sku, size_eu=lst.size_eu, source=lst.source,
-                    price_eur=lst.price_eur, condition=lst.condition,
-                    url=lst.url, title=lst.title, listing_id=lst.listing_id,
-                )
-
+                # Lo storico va letto PRIMA di registrare questo prezzo,
+                # altrimenti l'annuncio finisce nel proprio metro di
+                # paragone: il minimo storico includerebbe se stesso e
+                # la condizione "sei al minimo" sarebbe sempre vera.
                 history = db.prices_in_window(con, lst.sku, lst.size_eu,
                                               cfg["deal"]["window_days"])
 
@@ -185,17 +183,23 @@ def cmd_scan(cfg, watch):
                     ref = pricing.compute_reference(
                         history, ext[0] if ext else None, cfg["deal"]["min_observations"]
                     )
-                if ref is None:
-                    continue                      # primo avvistamento: solo registra
-
                 history_long = db.prices_in_window(con, lst.sku, lst.size_eu,
                                                    cfg["deal"]["grail_window_days"])
-                deal = pricing.evaluate(lst, product, ref[0], history, cfg, budget,
-                                        history_long=history_long)
-                if deal and pricing.should_notify(con, deal, cfg):
-                    deals.append(deal)
-                    print(f"   AFFARE {deal.price:.0f}€ (rif {deal.reference:.0f}€) "
-                          f"EU{deal.size_eu:g} @ {deal.source}")
+
+                if ref is not None:
+                    deal = pricing.evaluate(lst, product, ref[0], history, cfg, budget,
+                                            history_long=history_long)
+                    if deal and pricing.should_notify(con, deal, cfg):
+                        deals.append(deal)
+                        print(f"   AFFARE {deal.price:.0f}€ (rif {deal.reference:.0f}€) "
+                              f"EU{deal.size_eu:g} @ {deal.source}")
+
+                # registrato solo ora, a valutazione conclusa
+                db.record_observation(
+                    con, sku=lst.sku, size_eu=lst.size_eu, source=lst.source,
+                    price_eur=lst.price_eur, condition=lst.condition,
+                    url=lst.url, title=lst.title, listing_id=lst.listing_id,
+                )
 
         con.commit()
 

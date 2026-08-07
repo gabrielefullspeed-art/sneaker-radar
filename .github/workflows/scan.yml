@@ -16,7 +16,9 @@ concurrency:
 jobs:
   scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # 17 scarpe x 7 negozi, con pause di cortesia e attese crescenti
+    # quando un sito risponde 429: a 25 minuti veniva troncata a meta'.
+    timeout-minutes: 50
 
     steps:
       - uses: actions/checkout@v4
