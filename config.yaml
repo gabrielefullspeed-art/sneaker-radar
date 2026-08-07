@@ -123,6 +123,13 @@ sources:
       # --- scartati: negozi indiani, prezzi in rupie, dogana proibitiva ---
       # Kicks Machine, Crepdog Crew
 
+  wethenew:
+    # Resell francese: spedisce in Italia senza dogana, autentica ogni
+    # paio, varianti con SKU Nike veri e taglia EU in chiaro.
+    # Non e' Shopify: usa la sitemap + i dati JSON di Next.js.
+    enabled: true
+    request_delay: 1.2
+
   ebay:
     # DISATTIVATO su richiesta: preferenza per piattaforme che autenticano.
     # Per riattivarlo: enabled: true + le due chiavi in .env.

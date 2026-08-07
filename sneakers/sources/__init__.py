@@ -2,6 +2,7 @@ from .base import Source, Listing
 from .shopify import ShopifySource
 from .ebay import EbaySource
 from .kicksdb import KicksDBReference
+from .wethenew import WethenewSource
 
 
 def build_sources(cfg, fx) -> list[Source]:
@@ -12,6 +13,10 @@ def build_sources(cfg, fx) -> list[Source]:
     if sh.get("enabled"):
         for store in sh.get("stores", []):
             sources.append(ShopifySource(cfg, fx, store))
+
+    wtn = cfg["sources"].get("wethenew", {})
+    if wtn.get("enabled"):
+        sources.append(WethenewSource(cfg, fx, wtn))
 
     eb = cfg["sources"].get("ebay", {})
     if eb.get("enabled"):
@@ -25,4 +30,4 @@ def build_sources(cfg, fx) -> list[Source]:
 
 
 __all__ = ["Source", "Listing", "ShopifySource", "EbaySource",
-           "KicksDBReference", "build_sources"]
+           "KicksDBReference", "WethenewSource", "build_sources"]
