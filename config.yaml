@@ -108,11 +108,13 @@ sources:
       - {name: "Overkill",     url: "https://www.overkillshop.com",   size_system: EU,  currency: EUR}
       - {name: "Foot District",url: "https://www.footdistrict.com",   size_system: EU,  currency: EUR}
 
-      # --- da verificare al primo giro dal runner GitHub ---
-      # (bloccati dall'IP di casa, potrebbero funzionare dal cloud)
-      - {name: "43einhalb",    url: "https://www.43einhalb.com",      size_system: EU,  currency: EUR, probe: true}
-      - {name: "Sivasdescalzo",url: "https://www.sivasdescalzo.com",  size_system: EU,  currency: EUR, probe: true}
-      - {name: "Oqium",        url: "https://www.oqium.com",          size_system: EU,  currency: EUR, probe: true}
+      # --- DISATTIVATI: rispondono 403 sia da casa sia dal cloud ---
+      # Hanno un firewall che blocca tutto cio' che non e' un browser
+      # vero. Tenerli attivi allungava solo la scansione (ogni tentativo
+      # fallito costa tre attese) senza portare un solo prezzo.
+      # - {name: "43einhalb",    url: "https://www.43einhalb.com",     size_system: EU, currency: EUR}
+      # - {name: "Sivasdescalzo",url: "https://www.sivasdescalzo.com", size_system: EU, currency: EUR}
+      # - {name: "Oqium",        url: "https://www.oqium.com",         size_system: EU, currency: EUR}
 
       # --- scartati: negozi indiani, prezzi in rupie, dogana proibitiva ---
       # Kicks Machine, Crepdog Crew
